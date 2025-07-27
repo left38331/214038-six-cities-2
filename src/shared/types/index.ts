@@ -4,3 +4,4 @@ export { Offer } from './offer.type.js';
 export { User } from './user.type.js';
 export { MockServerData } from './mock-server-data.type.js';
 export { ApartmentsType } from './apartments.type.enum.js';
+export { Component } from './component.enum.js';

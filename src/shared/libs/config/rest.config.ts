@@ -7,7 +7,7 @@ import { Component } from '../../types/index.js';
 
 @injectable()
 export class RestConfig implements Config<RestSchema> {
-    private readonly config: RestSchema;
+  private readonly config: RestSchema;
 
   constructor(
     @inject(Component.Logger) private readonly logger: Logger

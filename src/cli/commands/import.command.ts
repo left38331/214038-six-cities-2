@@ -2,7 +2,7 @@ import { Command } from './command.interface.js';
 import { TSVFileReader } from '../../shared/libs/file-reader/index.js';
 import { createOffer, getErrorMessage, getMongoURI } from '../../shared/helpers/index.js';
 import { UserService } from '../../shared/modules/user/user-service.interface.js';
-import { CategoryModel, CategoryService, DefaultCategoryService } from '../../shared/modules/category/index.js';
+
 import { DefaultOfferService, OfferModel, OfferService } from '../../shared/modules/offer/index.js';
 import { DatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-client/index.js';
 import { Logger } from '../../shared/libs/logger/index.js';
@@ -13,7 +13,6 @@ import { Offer } from '../../shared/types/index.js';
 
 export class ImportCommand implements Command {
   private userService: UserService;
-  private categoryService: CategoryService;
   private offerService: OfferService;
   private databaseClient: DatabaseClient;
   private logger: Logger;
@@ -25,11 +24,17 @@ export class ImportCommand implements Command {
 
     this.logger = new ConsoleLogger();
     this.offerService = new DefaultOfferService(this.logger, OfferModel);
-    this.categoryService = new DefaultCategoryService(this.logger, CategoryModel);
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
+  }
 
   private async onImportedLine(line: string, resolve: () => void) {
+    // Skip header line
+    if (line.includes('title') && line.includes('description') && line.includes('publishedDate')) {
+      resolve();
+      return;
+    }
+    
     const offer = createOffer(line);
     await this.saveOffer(offer);
     resolve();
@@ -41,28 +46,35 @@ export class ImportCommand implements Command {
   }
 
   private async saveOffer(offer: Offer) {
-    const categories: string[] = [];
+    // Create a default user for the offer
     const user = await this.userService.findOrCreate({
-      ...offer.user,
+      email: 'default@example.com',
+      avatar: 'default-avatar.png',
+      name: 'Default User',
+      isPro: false,
       password: DEFAULT_USER_PASSWORD
     }, this.salt);
 
-    for (const { name } of offer.categories) {
-      const existCategory = await this.categoryService.findByCategoryNameOrCreate(name, { name });
-      categories.push(existCategory.id);
-    }
-
     await this.offerService.create({
-      categories,
-      userId: user.id,
       title: offer.title,
       description: offer.description,
-      image: offer.image,
-      postDate: offer.postDate,
-      price: offer.price,
+      publishedDate: offer.publishedDate,
+      city: offer.city,
+      previewImage: offer.previewImage,
+      photos: offer.photos,
+      isPremium: offer.isPremium,
+      isFavorite: offer.isFavorite,
+      rating: offer.rating,
       type: offer.type,
+      bedrooms: offer.bedrooms,
+      maxAdults: offer.maxAdults,
+      price: offer.price,
+      goods: offer.goods,
+      author: user.id,
+      commentsCount: offer.commentsCount,
+      latitude: offer.latitude,
+      longitude: offer.longitude,
     });
-
   }
 
   public getName(): string {

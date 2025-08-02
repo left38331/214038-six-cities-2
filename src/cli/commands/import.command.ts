@@ -34,7 +34,7 @@ export class ImportCommand implements Command {
       resolve();
       return;
     }
-    
+
     const offer = createOffer(line);
     await this.saveOffer(offer);
     resolve();

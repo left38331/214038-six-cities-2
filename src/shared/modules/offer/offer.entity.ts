@@ -94,4 +94,4 @@ export class OfferEntity extends defaultClasses.TimeStamps implements Offer {
   }
 }
 
-export const OfferModel = getModelForClass(OfferEntity); 
+export const OfferModel = getModelForClass(OfferEntity);

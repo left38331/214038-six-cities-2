@@ -20,4 +20,4 @@ export class CreateOfferDto {
   public commentsCount: number;
   public latitude: number;
   public longitude: number;
-} 
+}

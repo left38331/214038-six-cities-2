@@ -5,6 +5,7 @@ import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { inject, injectable } from 'inversify';
 import { Component } from '../../types/index.js';
 import { Logger } from '../../libs/logger/index.js';
+import { Offer } from '../../types/index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -14,7 +15,7 @@ export class DefaultOfferService implements OfferService {
   ) {}
 
   public async create(dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const offer = new OfferEntity(dto as any);
+    const offer = new OfferEntity(dto as unknown as Offer);
     const result = await this.offerModel.create(offer);
     this.logger.info(`New offer created: ${offer.title}`);
 
@@ -36,4 +37,4 @@ export class DefaultOfferService implements OfferService {
   public async updateById(offerId: string, dto: CreateOfferDto): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel.findByIdAndUpdate(offerId, dto, { new: true }).exec();
   }
-} 
+}
